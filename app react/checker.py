@@ -1,12 +1,7 @@
-from flask import Flask, request,jsonify
-from flask_restplus import Api, Resource, fields
 import stanfordnlp
 from googletrans import Translator
 #from google.cloud import translate_v2 as translate
 import jsons
-
-app = Flask(__name__)
-api = Api(app)
 
 class ReturnWord():
     def __init__(self):
@@ -48,10 +43,6 @@ accusative = { 'Masc': 'den', 'Fem': 'die', 'Neut': 'das' }
 dative = { 'Masc': 'dem', 'Fem': 'der', 'Neut': 'den' }
 genitive = { 'Masc': 'des', 'Fem': 'der', 'Neut': 'des' }
 
-models = api.model('Grammatik',
-    {'data': fields.String(required = True,
-                               description="Input")})
-
 doc_de = nlp_de(sentence)
 #doc_en = nlp_en(english)
 
@@ -62,7 +53,7 @@ sentences_ret = []
 for sentence in doc_de.sentences:
     words_ret = [ReturnWord() for _ in range(len(sentence.words))]
     for word in sentence.words:
-        print("[%d] Word: %s" % (int(word.index), word.text))
+        #print("[%d] Word: %s" % (int(word.index), word.text))
         eng = translator.translate(word.lemma, src='de', dest='en')
         #print(dir(words_ret[int(word.index) - 1].translations))
         #print(format(eng.extra_data))
@@ -71,28 +62,28 @@ for sentence in doc_de.sentences:
         if(eng.extra_data['all-translations'] is not None):
             words_ret[int(word.index) - 1].other_translations.extend(eng.extra_data['all-translations'][0][1])
         words_ret[int(word.index) - 1].set_vars(word.text, word.upos, word.xpos, word.governor, word.dependency_relation)
-        print("%s, %s, %s, %s" % (words_ret[int(word.index) - 1].text, words_ret[int(word.index) - 1].upos, words_ret[int(word.index) - 1].xpos, words_ret[int(word.index) - 1].relation))
+        #print("%s, %s, %s, %s" % (words_ret[int(word.index) - 1].text, words_ret[int(word.index) - 1].upos, words_ret[int(word.index) - 1].xpos, words_ret[int(word.index) - 1].relation))
         if(word.upos == 'ADP'):
-            print("%s is ADP" % word.text)
+            #print("%s is ADP" % word.text)
             if(word.lemma in prep_akk):
-                print("%s is accusative" % word.text)
+                #print("%s is accusative" % word.text)
                 words_ret[int(word.index) - 1].notes.append(word.text + " takes the accusative case.")
                 words_ret[word.governor - 1].notes.append("Because " + word.text + " is accusative, so is " + sentence.words[word.governor - 1].text)
                 words_ret[word.governor - 1].case = "Acc"
             elif(word.lemma in prep_dat):
-                print("%s is dative" % word.text)
+                #print("%s is dative" % word.text)
                 words_ret[int(word.index) - 1].notes.append(word.text + " takes the dative case.")
                 words_ret[word.governor - 1].notes.append("Because " + word.text + " is dative, so is " + sentence.words[word.governor - 1].text)
                 words_ret[word.governor - 1].case = "Dat"
             elif(word.lemma in prep_acc_dat):
-                print("%s is akk/dat" % word.text)
+                #print("%s is akk/dat" % word.text)
                 words_ret[int(word.index) - 1].notes.append(word.text + " takes Dative if it answers the question 'where?'")
                 words_ret[int(word.index) - 1].notes.append(word.text + " takes the Accusative if it answers the question 'where to?'")
                 words_ret[word.governor - 1].notes.append(sentence.words[word.governor - 1].text + " takes either the Accusative or Dative case.")
                 words_ret[word.governor - 1].case = "Acc|Dat"
         if(word.upos == 'NOUN'):
             words_ret[int(word.index) - 1].gender = (nlp_de(word.text).sentences[0].words[0].feats.split('|')[1].split('=')[1])
-            print("%s, %s" % (words_ret[int(word.index) - 1].gender, word.text))
+            #print("%s, %s" % (words_ret[int(word.index) - 1].gender, word.text))
         
         feats = word.feats.split('|')
         for feat in feats:
@@ -112,7 +103,7 @@ for sentence in doc_de.sentences:
     for word in sentence.words:
         #print("%s == 'ART' ? %s" % (word.xpos, (word.xpos == 'ART')))
         if(word.xpos == 'ART'):
-            print(words_ret[word.governor - 1].case)
+            #print(words_ret[word.governor - 1].case)
             if('Acc' in words_ret[word.governor - 1].case):
                 #print("%s is Acc %s" % (str(words_ret[word.governor - 1].text), str(words_ret[word.governor - 1].case)))
                 nom = nominative[words_ret[word.governor - 1].gender]
@@ -132,23 +123,11 @@ for sentence in doc_de.sentences:
 
 
 for ret in words_ret:
-    print("%s (%s)" % (ret.text, ret.translation))
+    #print("%s (%s)" % (ret.text, ret.translation))
     for note in ret.notes:
         print('\tNote: ' + note)
-    print('\tTranslations: ' + str(ret.other_translations))
+    #print('\tTranslations: ' + str(ret.other_translations))
 
 json_string = jsons.dumps(words_ret)
 print(json_string)
 
-@api.route("/")
-class MainClass(Resource):
-    @api.expect(models)
-    def post(self):
-        try:
-            response = jsonify({"statusCode": 200, "result": json_string})
-            #print(JSON.stringify(response))
-            response.headers.add('Access-Control-Allow-Origin', '*')
-            return response
-        except Exception as error:
-            return jsonify({
-                "statusCode": 500})
