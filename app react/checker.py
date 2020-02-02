@@ -2,6 +2,7 @@ import stanfordnlp
 from googletrans import Translator
 #from google.cloud import translate_v2 as translate
 import jsons
+import pyconll
 
 class ReturnFull():
     def __init__(self, words, conllu):
@@ -11,6 +12,7 @@ class ReturnFull():
 class ReturnWord():
     def __init__(self):
         self.text = ""
+        self.index = ""
         self.upos = ""
         self.xpos = ""
         self.case = ""
@@ -22,8 +24,9 @@ class ReturnWord():
         self.translation = ""
         self.other_translations = []
 
-    def set_vars(self, text, upos, xpos, governor, relation):
+    def set_vars(self, text, index, upos, xpos, governor, relation):
         self.text = text
+        self.index = index
         self.upos = upos
         self.xpos = xpos
         self.governor = governor
@@ -46,6 +49,9 @@ class Evaluate():
     def check(self, sentence):
         doc_de = self.nlp_de(sentence)
         conllu = doc_de.conll_file.conll_as_string()
+        conll = pyconll.load_from_string(conllu)
+        print(dir(conll))
+
         #print(doc_de.conll_file.conll_as_string())
         sentences_ret = []
 
@@ -60,7 +66,7 @@ class Evaluate():
                 words_ret[int(word.index) - 1].translation = eng.text
                 if(eng.extra_data['all-translations'] is not None):
                     words_ret[int(word.index) - 1].other_translations.extend(eng.extra_data['all-translations'][0][1])
-                words_ret[int(word.index) - 1].set_vars(word.text, word.upos, word.xpos, word.governor, word.dependency_relation)
+                words_ret[int(word.index) - 1].set_vars(word.text, int(word.index), word.upos, word.xpos, word.governor, word.dependency_relation)
                 #print("%s, %s, %s, %s" % (words_ret[int(word.index) - 1].text, words_ret[int(word.index) - 1].upos, words_ret[int(word.index) - 1].xpos, words_ret[int(word.index) - 1].relation))
                 if(word.upos == 'ADP'):
                     #print("%s is ADP" % word.text)
@@ -119,7 +125,16 @@ class Evaluate():
                         article = self.genitive[words_ret[word.governor - 1].gender]
                         words_ret[int(word.index) - 1].notes.append("%s %s takes the genitive case, so the article should be %s" % (nom.capitalize(), words_ret[word.governor - 1].text, article))
         
-        ret_full = ReturnFull(words_ret, conllu)
+        for ret in words_ret:
+            print(ret.text)
+            for note in ret.notes:
+                if(not 'Misc' in conll[0][ret.index - 1].feats.keys()):
+                    conll[0][ret.index - 1].feats['Misc'] = set()
+                conll[0][ret.index - 1].feats['Misc'].add(note)
+            print(conll[0][ret.index - 1].feats)
+        print(conll.conll())
+
+        ret_full = ReturnFull(words_ret, conll.conll())
 
         return jsons.dumps(ret_full)
 
