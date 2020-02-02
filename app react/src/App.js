@@ -28,7 +28,6 @@ class App extends React.Component {
       formData: {
         data: "test",
       },
-      readonlyValue:'',
       result: '',
     }
   }
@@ -40,7 +39,8 @@ class App extends React.Component {
         {
           headers: {
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin':'*',
         },
         method: 'POST',
         body: JSON.stringify(formData)
@@ -84,11 +84,11 @@ class App extends React.Component {
         <div className="row justify-content-center">
         <form>
             <p>Input</p>
-            <textarea type="text" id="inputText" onChange={this.handleChange.bind(this)} name="name" rows="10" cols="50" style={{"border-radius": "10px"}}/>
+            <textarea type="text" id="inputText" onChange={this.handleChange.bind(this)} name="name" rows="10" cols="50" style={{"borderRadius": "10px"}}/>
         </form>
         <form>
             <p>Grammer result</p>
-            <textarea type="text" id="readonly" value={this.state.readonlyValue} spellcheck="true" readOnly name="name" rows="10" cols="50" style={{"border-radius": "10px"}}/>
+            <textarea type="text" id="readonly" value={this.state.result} spellCheck="true" readOnly name="name" rows="10" cols="50" style={{"border-radius": "10px"}}/>
         </form>
         </div>
         <div>
