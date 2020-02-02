@@ -28,7 +28,7 @@ class Evaluate():
     def __init__(self):
         self.translator = Translator()
         self.nlp_de = stanfordnlp.Pipeline(lang='de')
-        self.nlp_en = stanfordnlp.Pipeline(lang='en')
+        #self.nlp_en = stanfordnlp.Pipeline(lang='en')
         self.prep_akk = ['bis', 'durch', 'für', 'gegen', 'ohne', 'um']
         self.prep_dat = ['aus', 'ausser', 'bei', 'nach', 'mit', 'seit', 'von', 'zu']
         self.prep_acc_dat = ['an', 'auf', 'hinter', 'in', 'neben', 'über', 'unter', 'von', 'zwischen']
