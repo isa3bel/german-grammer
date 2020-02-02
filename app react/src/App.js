@@ -22,23 +22,45 @@ class App extends React.Component {
 
   constructor() {
     super();
-    this.service = new TextService();
+    //this.service = new TextService();
     this.state = {
       value: '',
-      // json: {
-      //   test: 'blah',
-      // }
-      readonlyValue: '',
+      formData: {
+        data: "test",
+      },
+      readonlyValue:'',
+      result: '',
     }
   }
 
-  submitHappened = () => 
-    //this.service.sendTextAreaInput(this.state.json).then(response => console.log(response));
-    // 
-    this.setState({readonlyValue: this.state.value});
+  submitHappened = (event) => {
+    const formData = this.state.formData;
+    this.setState({ isLoading: true });
+    fetch('http://localhost:5000/#home/', 
+        {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify(formData)
+      })
+      .then(response => response.json())
+      .then(response => {
+        this.setState({
+          result: response.result,
+        });
+      });
+      $('#readonly').val(this.state.result);
+  }
 
   handleChange(event) {
-      this.setState({value: event.target.value})
+    const value = event.target.value;
+    var formData = this.state.formData;
+    formData['data'] = value;
+    this.setState({
+      formData
+    });
   }  
     
   

@@ -2,7 +2,8 @@ class TextService {
 
 //    url =
 //    'https://wbdv-generic-server.herokuapp.com/api/isabelbolger/users';
-   url = "http://causal-shell-266901.appspot.com";
+   //url = "http://causal-shell-266901.appspot.com";
+   url = 'https:/localhost:3000/#home'
    
     sendTextAreaInput(val) {
         return fetch(this.url, {
