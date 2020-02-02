@@ -28,15 +28,18 @@ class App extends React.Component {
       // json: {
       //   test: 'blah',
       // }
+      readonlyValue: '',
     }
   }
 
-  // submitHappened = () => 
-  //   this.service.sendTextAreaInput(this.state.json).then(response => console.log(response));
-  
-  // handleChange(event) {
-  //     this.setState({value: event.target.value})
-  // }  
+  submitHappened = () => 
+    //this.service.sendTextAreaInput(this.state.json).then(response => console.log(response));
+    // 
+    this.setState({readonlyValue: this.state.value});
+
+  handleChange(event) {
+      this.setState({value: event.target.value})
+  }  
     
   
 
@@ -59,11 +62,11 @@ class App extends React.Component {
         <div className="row justify-content-center">
         <form>
             <p>Input</p>
-    <textarea type="text" id="inputText" name="name" rows="10" cols="50" style={{"border-radius": "10px"}}/>
+            <textarea type="text" id="inputText" onChange={this.handleChange.bind(this)} name="name" rows="10" cols="50" style={{"border-radius": "10px"}}/>
         </form>
         <form>
             <p>Grammer result</p>
-            <textarea type="text" id="readonly" spellcheck="true" readOnly name="name" rows="10" cols="50" style={{"border-radius": "10px"}}/>
+            <textarea type="text" id="readonly" value={this.state.readonlyValue} spellcheck="true" readOnly name="name" rows="10" cols="50" style={{"border-radius": "10px"}}/>
         </form>
         </div>
         <div>
