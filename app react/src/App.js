@@ -29,13 +29,30 @@ class App extends React.Component {
         data: "test",
       },
       result: '',
+      conllu: '',
+      width: 483,
+      height: 244
     }
+  }
+
+   parseReturn(response){
+    var str = "";
+    console.log(response);
+    //this.state.conllu = response.conllu.replace('\t', '&emsp;');
+    //this.state.conllu = this.state.conllu.replace('\n', '&NewLine;')
+    //this.state.conllu = String.raw`./brattest.html?` + this.state.conllu;
+    this.state.conllu = "./brattest.html?" + encodeURI(response.conllu);
+    console.log(this.state.conllu);
+    for(var i = 0; i < response.words.length; i++){
+        str += response.words[i].text + " ";
+    }
+    return str;
   }
 
   submitHappened = (event) => {
     const formData = this.state.formData;
     this.setState({ isLoading: true });
-    fetch('http://localhost:5000/#home/', 
+    fetch('http://localhost:5000/check', 
         {
           headers: {
             'Accept': 'application/json',
@@ -48,7 +65,7 @@ class App extends React.Component {
       .then(response => response.json())
       .then(response => {
         this.setState({
-          result: response.result,
+          result: this.parseReturn(response),
         });
       });
       $('#readonly').val(this.state.result);
@@ -62,8 +79,6 @@ class App extends React.Component {
       formData
     });
   }  
-    
-  
 
   render() {
     return (
@@ -88,7 +103,7 @@ class App extends React.Component {
         </form>
         <form>
             <p>Grammer result</p>
-            <textarea type="text" id="readonly" value={this.state.result} spellCheck="true" readOnly name="name" rows="10" cols="50" style={{"border-radius": "10px"}}/>
+            <iframe src={this.state.conllu} height={this.state.height} width={this.state.width}/>    
         </form>
         </div>
         <div>

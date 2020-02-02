@@ -3,6 +3,11 @@ from googletrans import Translator
 #from google.cloud import translate_v2 as translate
 import jsons
 
+class ReturnFull():
+    def __init__(self, words, conllu):
+        self.words = words
+        self.conllu = conllu
+
 class ReturnWord():
     def __init__(self):
         self.text = ""
@@ -16,7 +21,7 @@ class ReturnWord():
         self.notes = []
         self.translation = ""
         self.other_translations = []
-        
+
     def set_vars(self, text, upos, xpos, governor, relation):
         self.text = text
         self.upos = upos
@@ -40,6 +45,8 @@ class Evaluate():
 
     def check(self, sentence):
         doc_de = self.nlp_de(sentence)
+        conllu = doc_de.conll_file.conll_as_string()
+        #print(doc_de.conll_file.conll_as_string())
         sentences_ret = []
 
         for sentence in doc_de.sentences:
@@ -111,7 +118,10 @@ class Evaluate():
                         nom = self.nominative[words_ret[word.governor - 1].gender]
                         article = self.genitive[words_ret[word.governor - 1].gender]
                         words_ret[int(word.index) - 1].notes.append("%s %s takes the genitive case, so the article should be %s" % (nom.capitalize(), words_ret[word.governor - 1].text, article))
-        return jsons.dumps(words_ret)
+        
+        ret_full = ReturnFull(words_ret, conllu)
+
+        return jsons.dumps(ret_full)
 
 #evaluator = Evaluate()
 #sentence = "Ich kann nicht in die Schule gehen"

@@ -1,8 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-GB" xml:lang="en-GB" xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title>Visualisation</title>
     <link rel="root" href=""/> <!-- for JS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="css/jquery-ui-redmond.css"/>
@@ -13,44 +14,33 @@
     <script type="text/javascript" src="lib/ext/jquery.timeago.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/3.2.2/anchor.min.js"></script>
     <script>document.addEventListener("DOMContentLoaded", function(event) {anchors.add();});</script>
+    <!-- Set up this custom Google search at https://cse.google.com/cse/business/settings?cx=001145188882102106025:dl1mehhcgbo -->
+    <script>
+      (function() {
+        var cx = '001145188882102106025:dl1mehhcgbo';
+        var gcse = document.createElement('script');
+        gcse.type = 'text/javascript';
+        gcse.async = true;
+        gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(gcse, s);
+      })();
+    </script>
+<!--     <link rel="shortcut icon" href="favicon.ico"/> -->
 
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
-    <!-- support for embedded visualizations -->
+    <pre><code class="language-conllu"># This is not UD, it is Prague Dependency Treebank, and we want to clearly distinguish it from the UD examples.
+# visual-style nodes yellow
+# visual-style arcs blue
+<script type="text/javascript">
+  var queryString = decodeURIComponent(window.location.search); //parsing
+queryString = queryString.substring(1);
+document.write(queryString);
+</script>
+</code></pre>
+<!-- support for embedded visualizations -->
 <script type="text/javascript">
     var root = ''; // filled in by jekyll
     head.js(
@@ -92,40 +82,40 @@
     ];
 
     var setupAccordions = function() {
-  // preserve state in URL hash, following in part
-  // http://www.boduch.ca/2011/05/remembering-jquery-ui-accordion.html
+    // preserve state in URL hash, following in part
+    // http://www.boduch.ca/2011/05/remembering-jquery-ui-accordion.html
 
         // Make subaccordions first, make them active to get height, and then close later
         $(".jquery-ui-subaccordion-closed").accordion({collapsible: true, disabled:false, active:0});
 
-  var accordionChange = function(event, ui) {
-      var context = ui.newHeader ? ui.newHeader.context : null;
-      if (context) {
-    var languageCode = context.getAttribute('data-lc');
-    if (languageCode !== null) {
-        window.location.hash = languageCode;
+    var accordionChange = function(event, ui) {
+        var context = ui.newHeader ? ui.newHeader.context : null;
+        if (context) {
+        var languageCode = context.getAttribute('data-lc');
+        if (languageCode !== null) {
+            window.location.hash = languageCode;
+        }
+        }
     }
-      }
-  }
         // jQuery UI "accordion" element initialization
-  $(".jquery-ui-accordion").accordion({
-      collapsible: true,
-      active: false,
-      change: accordionChange
-  });
-  if ($(".jquery-ui-accordion").length) {
-      var matches = window.location.hash.match(/^\#(.*)$/);
-      console.log(matches);
-      if (matches !== null) {
-    var languageCode = matches[1];
-    var tab = $('[data-lc="'+languageCode+'"]');
-    // the following will only work after accordion is initialized
-    var index = $('.jquery-ui-accordion div.ui-accordion-header').index(tab);
-    if (index !== -1) {
-        $(".jquery-ui-accordion").accordion({ active: index });
+    $(".jquery-ui-accordion").accordion({
+        collapsible: true,
+        active: false,
+        change: accordionChange
+    });
+    if ($(".jquery-ui-accordion").length) {
+        var matches = window.location.hash.match(/^\#(.*)$/);
+        console.log(matches);
+        if (matches !== null) {
+        var languageCode = matches[1];
+        var tab = $('[data-lc="'+languageCode+'"]');
+        // the following will only work after accordion is initialized
+        var index = $('.jquery-ui-accordion div.ui-accordion-header').index(tab);
+        if (index !== -1) {
+            $(".jquery-ui-accordion").accordion({ active: index });
+        }
+        }
     }
-      }
-  }
         //now reclose these accordions
         $(".jquery-ui-subaccordion-closed").accordion("option","active",false);
     };
@@ -143,11 +133,11 @@
         // http://stackoverflow.com/a/3330919)
         if ($(".jquery-ui-tabs").length > 0) {
             $.address.change(function(event){
-          $(".jquery-ui-tabs").tabs("select", window.location.hash)
-      });
-      $(".jquery-ui-tabs").bind("tabsselect", function(event, ui) { 
-          window.location.hash = ui.tab.hash;
-      });
+            $(".jquery-ui-tabs").tabs("select", window.location.hash)
+        });
+        $(".jquery-ui-tabs").bind("tabsselect", function(event, ui) { 
+            window.location.hash = ui.tab.hash;
+        });
         }
     };
 
@@ -160,8 +150,8 @@
         // mark current collection (filled in by Jekyll)
         Collections.listing['_current'] = '';
 
-  // perform all embedding and support functions
-  Annodoc.activate(Config.bratCollData, Collections.listing);
+    // perform all embedding and support functions
+    Annodoc.activate(Config.bratCollData, Collections.listing);
     });
 </script>
 
@@ -177,5 +167,9 @@
   ga('send', 'pageview');
 
 </script>
+
+
+      
+    </div>
   </body>
 </html>

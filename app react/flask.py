@@ -1,4 +1,5 @@
 from flask import Flask, request,jsonify
+from flask_cors import CORS
 from flask_restplus import Api, Resource, fields
 import jsons
 from flask_restful import reqparse
@@ -6,12 +7,23 @@ from .checker import Evaluate
 
 app = Flask(__name__)
 evaluator = Evaluate()
+CORS(app)
 
 @app.route('/check', methods=['POST'])
 def login():
-    print(request.form['input'])
-    j = evaluator.check(request.form['input'])
+    #print(dir(request))
+    print(request.get_json())
+    #print(request.form['input'])
+    j = evaluator.check(request.get_json()['data'])
     return(j)
+
+'''@app.route('/check', methods=['OPTIONS'])
+def preflight():
+    response = make_response()
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add('Access-Control-Allow-Headers', "*")
+    response.headers.add('Access-Control-Allow-Methods', "*")
+    return response'''
 
 if __name__ == '__main__':
     app.run()
