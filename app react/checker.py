@@ -1,7 +1,12 @@
+from flask import Flask, request,jsonify
+from flask_restplus import Api, Resource, fields
 import stanfordnlp
 from googletrans import Translator
-from google.cloud import translate_v2 as translate
+#from google.cloud import translate_v2 as translate
 import jsons
+
+app = Flask(__name__)
+api = Api(app)
 
 class ReturnWord():
     def __init__(self):
@@ -42,6 +47,10 @@ nominative = { 'Masc': 'der', 'Fem': 'die', 'Neut': 'das' }
 accusative = { 'Masc': 'den', 'Fem': 'die', 'Neut': 'das' }
 dative = { 'Masc': 'dem', 'Fem': 'der', 'Neut': 'den' }
 genitive = { 'Masc': 'des', 'Fem': 'der', 'Neut': 'des' }
+
+models = api.model('Grammatik',
+    {'data': fields.String(required = True,
+                               description="Input")})
 
 doc_de = nlp_de(sentence)
 #doc_en = nlp_en(english)
@@ -130,3 +139,16 @@ for ret in words_ret:
 
 json_string = jsons.dumps(words_ret)
 print(json_string)
+
+@api.route("/")
+class MainClass(Resource):
+    @api.expect(models)
+    def post(self):
+        try:
+            response = jsonify({"statusCode": 200, "result": json_string})
+            #print(JSON.stringify(response))
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response
+        except Exception as error:
+            return jsonify({
+                "statusCode": 500})
