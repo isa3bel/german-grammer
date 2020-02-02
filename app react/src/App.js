@@ -33,25 +33,25 @@ class App extends React.Component {
   }
 
   submitHappened = (event) => {
-    // const formData = this.state.formData;
-    // this.setState({ isLoading: true });
-    // fetch('http://localhost:5000/#home/', 
-    //     {
-    //       headers: {
-    //         'Accept': 'application/json',
-    //         'Content-Type': 'application/json',
-    //         'Access-Control-Allow-Origin':'*',
-    //     },
-    //     method: 'POST',
-    //     body: JSON.stringify(formData)
-    //   })
-    //   .then(response => response.json())
-    //   .then(response => {
-    //     this.setState({
-    //       result: response.result,
-    //     });
-    //   });
-      $('#readonly').val(this.state.formData.data);
+    const formData = this.state.formData;
+    this.setState({ isLoading: true });
+    fetch('http://localhost:5000/#home/', 
+        {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin':'*',
+        },
+        method: 'POST',
+        body: JSON.stringify(formData)
+      })
+      .then(response => response.json())
+      .then(response => {
+        this.setState({
+          result: response.result,
+        });
+      });
+      $('#readonly').val(this.state.result);
   }
 
   handleChange(event) {
@@ -61,8 +61,6 @@ class App extends React.Component {
     this.setState({
       formData
     });
-
-    
   }  
     
   
