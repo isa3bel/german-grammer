@@ -41,10 +41,13 @@ class App extends React.Component {
     //this.state.conllu = response.conllu.replace('\t', '&emsp;');
     //this.state.conllu = this.state.conllu.replace('\n', '&NewLine;')
     //this.state.conllu = String.raw`./brattest.html?` + this.state.conllu;
-    this.state.conllu = "./brattest.html?" + encodeURI(response.conllu);
+    this.state.conllu = "./brattest.html?" + encodeURI(response.conllu) + "?" + encodeURI(response.conllu_eng);
     console.log(this.state.conllu);
     for(var i = 0; i < response.words.length; i++){
-        str += response.words[i].text + " ";
+        if(response.words[i].notes.length > 0) { str += response.words[i].text + '\n'; }
+        for(var j = 0; j < response.words[i].notes.length; j++){
+          str += '\t' + response.words[i].notes[j] + '\n';
+        }
     }
     return str;
   }
@@ -103,14 +106,12 @@ class App extends React.Component {
         </form>
         <form>
             <p>Grammer result</p>
-            <iframe src={this.state.conllu} height={this.state.height} width={this.state.width}/>    
+            <iframe src={this.state.conllu} height={this.state.height} width={this.state.width}/>   
+            <textarea type="text" id="readonly" value={this.state.result} spellCheck="true" readOnly name="name" rows="10" cols="70" style={{"border-radius": "10px"}}/> 
         </form>
         </div>
         <div>
           <Button variant="success" onClick={this.submitHappened}>Submit</Button>
-          <Button variant="outline-primary">View English parts of speech</Button>
-          <Button variant="outline-primary">View German parts of speech</Button>
-          <Button variant="danger">Check for errors</Button>
         </div>
       </div>
     );

@@ -36,8 +36,17 @@
 # visual-style arcs blue
 <script type="text/javascript">
   var queryString = decodeURIComponent(window.location.search); //parsing
-queryString = queryString.substring(1);
-document.write(queryString);
+queries = queryString.substring(1).split('?');
+document.write(queries[0]);
+</script>
+</code></pre>
+<pre><code class="language-conllu"># This is not UD, it is Prague Dependency Treebank, and we want to clearly distinguish it from the UD examples.
+# visual-style nodes yellow
+# visual-style arcs blue
+<script type="text/javascript">
+var queryString = decodeURIComponent(window.location.search); //parsing
+queries = queryString.substring(1).split('?');
+document.write(queries[1]);
 </script>
 </code></pre>
 <!-- support for embedded visualizations -->

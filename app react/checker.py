@@ -1,13 +1,14 @@
 import stanfordnlp
 from googletrans import Translator
-#from google.cloud import translate_v2 as translate
+from google.cloud import translate_v2 as translate
 import jsons
 import pyconll
 
 class ReturnFull():
-    def __init__(self, words, conllu):
+    def __init__(self, words, conllu, conllu_eng):
         self.words = words
         self.conllu = conllu
+        self.conllu_eng = conllu_eng
 
 class ReturnWord():
     def __init__(self):
@@ -36,7 +37,7 @@ class Evaluate():
     def __init__(self):
         self.translator = Translator()
         self.nlp_de = stanfordnlp.Pipeline(lang='de')
-        #self.nlp_en = stanfordnlp.Pipeline(lang='en')
+        self.nlp_en = stanfordnlp.Pipeline(lang='en')
         self.prep_akk = ['bis', 'durch', 'für', 'gegen', 'ohne', 'um']
         self.prep_dat = ['aus', 'ausser', 'bei', 'nach', 'mit', 'seit', 'von', 'zu']
         self.prep_acc_dat = ['an', 'auf', 'hinter', 'in', 'neben', 'über', 'unter', 'von', 'zwischen']
@@ -51,6 +52,10 @@ class Evaluate():
         conllu = doc_de.conll_file.conll_as_string()
         conll = pyconll.load_from_string(conllu)
         print(dir(conll))
+        translate_client = translate.Client()
+
+        english = translate_client.translate(sentence, target_language='en')['translatedText']
+        doc_en = self.nlp_en(english)
 
         #print(doc_de.conll_file.conll_as_string())
         sentences_ret = []
@@ -113,17 +118,17 @@ class Evaluate():
                         #print("%s is Acc %s" % (str(words_ret[word.governor - 1].text), str(words_ret[word.governor - 1].case)))
                         nom = self.nominative[words_ret[word.governor - 1].gender]
                         article = self.accusative[words_ret[word.governor - 1].gender]
-                        words_ret[int(word.index) - 1].notes.append("%s %s takes the accusative case, so the article should be %s" % (nom.capitalize(), words_ret[word.governor - 1].text, article))
+                        words_ret[int(word.index) - 1].notes.append("If %s %s takes the accusative case the article should be %s" % (nom, words_ret[word.governor - 1].text, article))
                     if('Dat' in words_ret[word.governor - 1].case):
                         #print("%s is Dat %s" % (str(words_ret[word.governor - 1].text), str(words_ret[word.governor - 1].case)))
                         nom = self.nominative[words_ret[word.governor - 1].gender]
                         article = self.dative[words_ret[word.governor - 1].gender]
-                        words_ret[int(word.index) - 1].notes.append("%s %s takes the dative case, so the article should be %s" % (nom.capitalize(), words_ret[word.governor - 1].text, article))
+                        words_ret[int(word.index) - 1].notes.append("If %s %s takes the dative case the article should be %s" % (nom, words_ret[word.governor - 1].text, article))
                     if('Gen' in words_ret[word.governor - 1].case):
                         #print("%s is Gen %s" % (str(words_ret[word.governor - 1].text), str(words_ret[word.governor - 1].case)))
                         nom = self.nominative[words_ret[word.governor - 1].gender]
                         article = self.genitive[words_ret[word.governor - 1].gender]
-                        words_ret[int(word.index) - 1].notes.append("%s %s takes the genitive case, so the article should be %s" % (nom.capitalize(), words_ret[word.governor - 1].text, article))
+                        words_ret[int(word.index) - 1].notes.append("If %s %s takes the genitive case the article should be %s" % (nom, words_ret[word.governor - 1].text, article))
         
         for ret in words_ret:
             print(ret.text)
@@ -134,7 +139,7 @@ class Evaluate():
             print(conll[0][ret.index - 1].feats)
         print(conll.conll())
 
-        ret_full = ReturnFull(words_ret, conll.conll())
+        ret_full = ReturnFull(words_ret, conll.conll(), doc_en.conll_file.conll_as_string())
 
         return jsons.dumps(ret_full)
 
