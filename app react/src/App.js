@@ -16,8 +16,29 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css";
 import $ from 'jquery';
 import Tree from "./images/tree.png";
+import TextService from "./services/TextService";
 
 class App extends React.Component {
+
+  constructor() {
+    super();
+    this.service = new TextService();
+    this.state = {
+      value: '',
+      // json: {
+      //   test: 'blah',
+      // }
+    }
+  }
+
+  // submitHappened = () => 
+  //   this.service.sendTextAreaInput(this.state.json).then(response => console.log(response));
+  
+  // handleChange(event) {
+  //     this.setState({value: event.target.value})
+  // }  
+    
+  
 
   render() {
     return (
@@ -38,14 +59,19 @@ class App extends React.Component {
         <div className="row justify-content-center">
         <form>
             <p>Input</p>
-            <textarea type="text" id="inputText" name="name" rows="10" cols="50" style={{"border-radius": "10px"}}/>
+    <textarea type="text" id="inputText" name="name" rows="10" cols="50" style={{"border-radius": "10px"}}/>
         </form>
         <form>
             <p>Grammer result</p>
             <textarea type="text" id="readonly" spellcheck="true" readOnly name="name" rows="10" cols="50" style={{"border-radius": "10px"}}/>
         </form>
         </div>
-        <input type="submit" value="Submit"/>
+        <div>
+          <Button variant="success" onClick={this.submitHappened}>Submit</Button>
+          <Button variant="outline-primary">View English parts of speech</Button>
+          <Button variant="outline-primary">View German parts of speech</Button>
+          <Button variant="danger">Check for errors</Button>
+        </div>
       </div>
     );
   }
