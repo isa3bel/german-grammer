@@ -1,4 +1,7 @@
 import stanfordnlp
+from googletrans import Translator
+from google.cloud import translate_v2 as translate
+import jsons
 
 class ReturnWord():
     def __init__(self):
@@ -11,6 +14,8 @@ class ReturnWord():
         self.governor = ""
         self.relation = ""
         self.notes = []
+        self.translation = ""
+        self.other_translations = []
         
     def set_vars(self, text, upos, xpos, governor, relation):
         self.text = text
@@ -19,10 +24,15 @@ class ReturnWord():
         self.governor = governor
         self.relation = relation
 
+translator = Translator()
+# Needs api key
+#translate_client = translate.Client()
+
 nlp_de = stanfordnlp.Pipeline(lang='de')
 #nlp_en = stanfordnlp.Pipeline(lang='en')
 
-sentence = "Ich esse der Hut"
+sentence = "Willst du auch Brot backen?"
+#english = translate_client.translate(sentence, target_language='en')['translatedText']
 
 prep_akk = ['bis', 'durch', 'für', 'gegen', 'ohne', 'um']
 prep_dat = ['aus', 'ausser', 'bei', 'nach', 'mit', 'seit', 'von', 'zu']
@@ -34,6 +44,9 @@ dative = { 'Masc': 'dem', 'Fem': 'der', 'Neut': 'den' }
 genitive = { 'Masc': 'des', 'Fem': 'der', 'Neut': 'des' }
 
 doc_de = nlp_de(sentence)
+#doc_en = nlp_en(english)
+
+#oc_en.sentences[0].print_dependencies()
 
 sentences_ret = []
 
@@ -41,6 +54,13 @@ for sentence in doc_de.sentences:
     words_ret = [ReturnWord() for _ in range(len(sentence.words))]
     for word in sentence.words:
         print("[%d] Word: %s" % (int(word.index), word.text))
+        eng = translator.translate(word.lemma, src='de', dest='en')
+        #print(dir(words_ret[int(word.index) - 1].translations))
+        #print(format(eng.extra_data))
+        #print(format(eng.extra_data['all-translations']))
+        words_ret[int(word.index) - 1].translation = eng.text
+        if(eng.extra_data['all-translations'] is not None):
+            words_ret[int(word.index) - 1].other_translations.extend(eng.extra_data['all-translations'][0][1])
         words_ret[int(word.index) - 1].set_vars(word.text, word.upos, word.xpos, word.governor, word.dependency_relation)
         print("%s, %s, %s, %s" % (words_ret[int(word.index) - 1].text, words_ret[int(word.index) - 1].upos, words_ret[int(word.index) - 1].xpos, words_ret[int(word.index) - 1].relation))
         if(word.upos == 'ADP'):
@@ -88,19 +108,25 @@ for sentence in doc_de.sentences:
                 #print("%s is Acc %s" % (str(words_ret[word.governor - 1].text), str(words_ret[word.governor - 1].case)))
                 nom = nominative[words_ret[word.governor - 1].gender]
                 article = accusative[words_ret[word.governor - 1].gender]
-                words_ret[int(word.index) - 1].notes.append("%s %s takes the accusative case, so the article should be %s" % (nom, words_ret[word.governor - 1].text, article))
+                words_ret[int(word.index) - 1].notes.append("%s %s takes the accusative case, so the article should be %s" % (nom.capitalize(), words_ret[word.governor - 1].text, article))
             if('Dat' in words_ret[word.governor - 1].case):
                 #print("%s is Dat %s" % (str(words_ret[word.governor - 1].text), str(words_ret[word.governor - 1].case)))
                 nom = nominative[words_ret[word.governor - 1].gender]
                 article = dative[words_ret[word.governor - 1].gender]
-                words_ret[int(word.index) - 1].notes.append("%s %s takes the dative case, so the article should be %s" % (nom, words_ret[word.governor - 1].text, article))
+                words_ret[int(word.index) - 1].notes.append("%s %s takes the dative case, so the article should be %s" % (nom.capitalize(), words_ret[word.governor - 1].text, article))
             if('Gen' in words_ret[word.governor - 1].case):
                 #print("%s is Gen %s" % (str(words_ret[word.governor - 1].text), str(words_ret[word.governor - 1].case)))
                 nom = nominative[words_ret[word.governor - 1].gender]
                 article = genitive[words_ret[word.governor - 1].gender]
-                words_ret[int(word.index) - 1].notes.append("%s %s takes the genitive case, so the article should be %s" % (nom, words_ret[word.governor - 1].text, article))
+                words_ret[int(word.index) - 1].notes.append("%s %s takes the genitive case, so the article should be %s" % (nom.capitalize(), words_ret[word.governor - 1].text, article))
+
+
 
 for ret in words_ret:
-    print(ret.text)
+    print("%s (%s)" % (ret.text, ret.translation))
     for note in ret.notes:
         print('\tNote: ' + note)
+    print('\tTranslations: ' + str(ret.other_translations))
+
+json_string = jsons.dumps(words_ret)
+print(json_string)
