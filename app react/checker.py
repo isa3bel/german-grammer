@@ -3,6 +3,7 @@ from googletrans import Translator
 from google.cloud import translate_v2 as translate
 import jsons
 import pyconll
+import html
 
 class ReturnFull():
     def __init__(self, words, conllu, conllu_eng):
@@ -55,7 +56,8 @@ class Evaluate():
         translate_client = translate.Client()
 
         english = translate_client.translate(sentence, target_language='en')['translatedText']
-        doc_en = self.nlp_en(english)
+        print("ENGLISH " + html.unescape(english))
+        doc_en = self.nlp_en(html.unescape(english))
 
         #print(doc_de.conll_file.conll_as_string())
         sentences_ret = []
@@ -131,15 +133,17 @@ class Evaluate():
                         words_ret[int(word.index) - 1].notes.append("If %s %s takes the genitive case the article should be %s" % (nom, words_ret[word.governor - 1].text, article))
         
         for ret in words_ret:
-            print(ret.text)
+            #print(ret.text)
             for note in ret.notes:
                 if(not 'Misc' in conll[0][ret.index - 1].feats.keys()):
                     conll[0][ret.index - 1].feats['Misc'] = set()
                 conll[0][ret.index - 1].feats['Misc'].add(note)
-            print(conll[0][ret.index - 1].feats)
-        print(conll.conll())
+            #print(conll[0][ret.index - 1].feats)
+        #print(conll.conll())
 
         ret_full = ReturnFull(words_ret, conll.conll(), doc_en.conll_file.conll_as_string())
+
+        print(ret_full.conllu_eng)
 
         return jsons.dumps(ret_full)
 
